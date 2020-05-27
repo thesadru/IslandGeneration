@@ -21,18 +21,18 @@ namespace GameOfLife
 
         public GameOfLife(
             int sizeX = 16, int sizeY = 16,
-            float aliveCellChance = 0)
+            float aliveCellChance = 0, int seed = -1)
         {
             /// choose grid size and chance of a cell to be alive
             this.sizeX = sizeX; this.sizeY = sizeY;
             if (aliveCellChance == 0)
             {
-                this.grid = ResetGrid();
+                this.grid = CreateEmptyGrid();
 
             }
             else
             {
-                this.grid = CreateRandomGrid(aliveCellChance);
+                this.grid = CreateRandomGrid(aliveCellChance, seed);
             }
         }
 
@@ -53,18 +53,22 @@ namespace GameOfLife
             }
         }
 
-        public int[,] ResetGrid()
+        public int[,] CreateEmptyGrid()
         {
             /// reset the grid
             return new int[sizeY, sizeX];
         }
 
-        public int[,] CreateRandomGrid(float chance)
+        public int[,] CreateRandomGrid(float chance, int seed = -1)
         {
             /// generate a random board
             /// every cell has a chace of being alive stated by the variable chance
-            int[,] final = ResetGrid();
-            Random random = new Random();
+            int[,] final = CreateEmptyGrid();
+            Random random;
+            if (seed == -1)
+                random = new Random();
+            else
+                random = new Random(seed);
 
             for (int x = 0; x < sizeY; x++)
             {
@@ -105,7 +109,7 @@ namespace GameOfLife
         public void NextGeneration()
         {
             /// does a generation cycle
-            int[,] future = ResetGrid();
+            int[,] future = CreateEmptyGrid();
 
             // Loop through every cell 
             for (int x = 1; x < sizeY - 1; x++)
@@ -113,7 +117,7 @@ namespace GameOfLife
                 for (int y = 1; y < sizeX - 1; y++)
                 {
                     // make cell alive if it has the right amount of neighbors
-                    int aliveNeighbors = AliveNeighbors(x, y);
+                    int aliveNeighbors = GetAliveNeighbors(x, y);
                     future[x, y] = SetCellByNeigbor(x, y, aliveNeighbors);
                 }
             }
@@ -131,7 +135,7 @@ namespace GameOfLife
                 return shouldDie.Contains(aliveNeighbors) ? 0 : 1;
 
         }
-        public int AliveNeighbors(int x, int y)
+        public int GetAliveNeighbors(int x, int y)
         {
             /// returns the number of alive neighbors
             /// 
